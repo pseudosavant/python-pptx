@@ -152,3 +152,10 @@ Note that:
    :exclude-members:
        has_chart, has_table, is_placeholder, placeholder_format
    :inherited-members:
+
+Stacking order
+--------------
+
+Shape.send_to_back() and Shape.bring_to_front() reorder shapes within their
+current slide or group. Shape identity, relationships, and group membership
+are preserved. Calling either method repeatedly is safe.
