@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Iterator
+from uuid import UUID
 
 from pptx.dml.fill import FillFormat
 from pptx.oxml.table import TcRange
+from pptx.oxml.ns import qn
+from pptx.oxml.xmlchemy import OxmlElement
 from pptx.shapes import Subshape
 from pptx.text.text import TextFrame
 from pptx.util import Emu, lazyproperty
@@ -30,6 +33,27 @@ class Table(object):
         super(Table, self).__init__()
         self._tbl = tbl
         self._graphic_frame = graphic_frame
+
+    @property
+    def style_id(self) -> str | None:
+        """GUID of the referenced table style. None selects the presentation default."""
+        properties = self._tbl.tblPr
+        style = None if properties is None else properties.find(qn("a:tableStyleId"))
+        return None if style is None else style.text
+
+    @style_id.setter
+    def style_id(self, value: str | None):
+        if value is not None:
+            if not isinstance(value, str):
+                raise TypeError("style_id must be a GUID string or None")
+            value = "{" + str(UUID(value)).upper() + "}"
+        properties = self._tbl.get_or_add_tblPr()
+        for style in list(properties.findall(qn("a:tableStyleId"))):
+            properties.remove(style)
+        if value is not None:
+            style = OxmlElement("a:tableStyleId")
+            style.text = value
+            properties.insert_element_before(style, "a:extLst")
 
     def cell(self, row_idx: int, col_idx: int) -> _Cell:
         """Return cell at `row_idx`, `col_idx`.
