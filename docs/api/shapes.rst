@@ -159,3 +159,10 @@ Alternative text metadata
 Shape.alt_text stores the accessibility description. Shape.alt_text_title stores
 the optional title. Both accept a string or None. None removes the attribute.
 An empty string is preserved. Neither property changes the shape name.
+
+Stacking order
+--------------
+
+Shape.send_to_back() and Shape.bring_to_front() reorder shapes within their
+current slide or group. Shape identity, relationships, and group membership
+are preserved. Calling either method repeatedly is safe.

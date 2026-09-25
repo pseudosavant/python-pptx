@@ -44,6 +44,18 @@ class BaseShape(object):
             return True
         return self._element is not other._element
 
+    def send_to_back(self) -> None:
+        """Move this shape behind its siblings, within its current slide or group."""
+        siblings = list(self._element.getparent().iter_shape_elms())
+        if siblings and siblings[0] is not self._element:
+            siblings[0].addprevious(self._element)
+
+    def bring_to_front(self) -> None:
+        """Move this shape in front of its siblings, within its current slide or group."""
+        siblings = list(self._element.getparent().iter_shape_elms())
+        if siblings and siblings[-1] is not self._element:
+            siblings[-1].addnext(self._element)
+
     @lazyproperty
     def click_action(self) -> ActionSetting:
         """|ActionSetting| instance providing access to click behaviors.
