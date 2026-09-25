@@ -44,3 +44,11 @@ future other presentation text objects.
    :members:
    :member-order: bysource
    :undoc-members:
+
+Baseline and strikethrough
+-------------------------
+
+Font.baseline is an offset as a fraction of font height. Use 0.3 to raise text
+and -0.25 to lower it. Font size is set independently. Zero resets the baseline
+and None restores inheritance. Font.strike accepts MSO_TEXT_STRIKE_TYPE.NONE,
+SINGLE, DOUBLE, or None to inherit.

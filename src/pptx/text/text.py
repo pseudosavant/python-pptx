@@ -289,6 +289,27 @@ class Font(object):
         self._element = self._rPr = rPr
 
     @property
+    def baseline(self) -> float | None:
+        """Baseline offset as a fraction of font height. None inherits, zero resets.
+
+        Positive values raise text. Negative values lower text. Font size is independent.
+        """
+        return self._rPr.baseline
+
+    @baseline.setter
+    def baseline(self, value: float | None):
+        self._rPr.baseline = value
+
+    @property
+    def strike(self):
+        """MSO_TEXT_STRIKE_TYPE value, or None to inherit strikethrough."""
+        return self._rPr.strike
+
+    @strike.setter
+    def strike(self, value):
+        self._rPr.strike = value
+
+    @property
     def bold(self) -> bool | None:
         """Get or set boolean bold value of |Font|, e.g. `paragraph.font.bold = True`.
 
