@@ -5,10 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Iterator, cast
 
 from pptx.dml.fill import FillFormat
+from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.ns import qn
-from pptx.text.text import Font
-from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.shapes.shapetree import (
     LayoutPlaceholders,
     LayoutShapes,
@@ -20,6 +19,7 @@ from pptx.shapes.shapetree import (
     SlideShapes,
 )
 from pptx.shared import ElementProxy, ParentedElementProxy, PartElementProxy
+from pptx.text.text import Font
 from pptx.util import lazyproperty
 
 if TYPE_CHECKING:
@@ -487,9 +487,15 @@ class SlideMaster(_BaseMaster):
             raise ValueError("kind must be title, body, or other")
         if isinstance(level, bool) or not isinstance(level, int) or not 0 <= level <= 8:
             raise ValueError("level must be an integer from 0 to 8")
-        path = "/".join(qn(tag) for tag in (
-            "p:txStyles", "p:" + kind + "Style", "a:lvl" + str(level + 1) + "pPr", "a:defRPr"
-        ))
+        path = "/".join(
+            qn(tag)
+            for tag in (
+                "p:txStyles",
+                "p:" + kind + "Style",
+                "a:lvl" + str(level + 1) + "pPr",
+                "a:defRPr",
+            )
+        )
         element = self._element.find(path)
         return None if element is None else Font(element)
 

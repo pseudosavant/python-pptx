@@ -44,8 +44,20 @@ class ThemeColorScheme:
     raise ValueError. Assignment replaces only the selected color definition.
     """
 
-    _slots = ("dk1", "lt1", "dk2", "lt2", "accent1", "accent2", "accent3",
-              "accent4", "accent5", "accent6", "hlink", "folHlink")
+    _slots = (
+        "dk1",
+        "lt1",
+        "dk2",
+        "lt2",
+        "accent1",
+        "accent2",
+        "accent3",
+        "accent4",
+        "accent5",
+        "accent6",
+        "hlink",
+        "folHlink",
+    )
 
     def __init__(self, element):
         self._element = element

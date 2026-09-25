@@ -3,7 +3,9 @@ from io import BytesIO
 import pytest
 
 from pptx import Presentation
-from pptx.util import Inches
+from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_THEME_COLOR
+from pptx.oxml.ns import qn
 
 
 def roundtrip(prs):
@@ -11,11 +13,6 @@ def roundtrip(prs):
     prs.save(stream)
     stream.seek(0)
     return Presentation(stream)
-
-
-from pptx.dml.color import RGBColor
-from pptx.enum.dml import MSO_THEME_COLOR
-from pptx.oxml.ns import qn
 
 
 def test_theme_edits_preserve_other_definitions_and_hyperlink_order():
@@ -43,7 +40,9 @@ def test_theme_edits_preserve_other_definitions_and_hyperlink_order():
     assert scheme[MSO_THEME_COLOR.ACCENT_1] == RGBColor(1, 2, 3)
     assert scheme[MSO_THEME_COLOR.ACCENT_2] == original_other_color
     assert reopened.slide_master.theme.font_scheme.major_latin == "Arial"
-    assert reopened.slides[0].shapes.title.text_frame.paragraphs[0].runs[0].font.theme_font == "major"
+    assert (
+        reopened.slides[0].shapes.title.text_frame.paragraphs[0].runs[0].font.theme_font == "major"
+    )
     before = master._element.xml
     assert master.text_style_font("body").size.pt > 0
     assert master._element.xml == before

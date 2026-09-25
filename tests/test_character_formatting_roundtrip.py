@@ -3,6 +3,7 @@ from io import BytesIO
 import pytest
 
 from pptx import Presentation
+from pptx.enum.text import MSO_TEXT_STRIKE_TYPE
 from pptx.util import Inches
 
 
@@ -11,9 +12,6 @@ def roundtrip(prs):
     prs.save(stream)
     stream.seek(0)
     return Presentation(stream)
-
-
-from pptx.enum.text import MSO_TEXT_STRIKE_TYPE
 
 
 @pytest.mark.parametrize("baseline", [None, 0, 0.3, -0.25])

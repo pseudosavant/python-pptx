@@ -1,9 +1,11 @@
 from io import BytesIO
 
 import pytest
+from PIL import Image
 
 from pptx import Presentation
-from pptx.util import Inches
+from pptx.dml.color import RGBColor
+from pptx.enum.dml import MSO_FILL, MSO_THEME_COLOR
 
 
 def roundtrip(prs):
@@ -11,11 +13,6 @@ def roundtrip(prs):
     prs.save(stream)
     stream.seek(0)
     return Presentation(stream)
-
-
-from PIL import Image
-from pptx.dml.color import RGBColor
-from pptx.enum.dml import MSO_FILL, MSO_THEME_COLOR
 
 
 @pytest.mark.parametrize("radial", [False, True])

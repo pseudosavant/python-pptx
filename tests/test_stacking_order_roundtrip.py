@@ -3,6 +3,7 @@ from io import BytesIO
 import pytest
 
 from pptx import Presentation
+from pptx.oxml.xmlchemy import OxmlElement
 from pptx.util import Inches
 
 
@@ -11,9 +12,6 @@ def roundtrip(prs):
     prs.save(stream)
     stream.seek(0)
     return Presentation(stream)
-
-
-from pptx.oxml.xmlchemy import OxmlElement
 
 
 @pytest.mark.parametrize("grouped", [False, True])

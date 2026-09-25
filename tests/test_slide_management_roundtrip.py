@@ -1,9 +1,6 @@
 from io import BytesIO
 
-import pytest
-
 from pptx import Presentation
-from pptx.util import Inches
 
 
 def roundtrip(prs):

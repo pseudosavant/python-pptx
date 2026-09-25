@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
+import math
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
-
-import math
 
 from pptx.dml.color import ColorFormat, RGBColor
 from pptx.enum.dml import MSO_FILL, MSO_THEME_COLOR
@@ -116,7 +115,7 @@ class FillFormat(object):
             path.set("path", "circle")
             rect = OxmlElement("a:fillToRect")
             x, y = center
-            for name, value in zip(("l", "t", "r", "b"), (x, y, 1-x, 1-y)):
+            for name, value in zip(("l", "t", "r", "b"), (x, y, 1 - x, 1 - y)):
                 rect.set(name, str(round(value * 100000)))
             path.append(rect)
             gradient.append(path)
@@ -267,7 +266,7 @@ class _Fill(object):
     @property
     def fore_color(self):
         """Raise TypeError for types that do not override this property."""
-        tmpl = "fill type %s has no foreground color, call .solid() or .pattern" "ed() first"
+        tmpl = "fill type %s has no foreground color, call .solid() or .patterned() first"
         raise TypeError(tmpl % self.__class__.__name__)
 
     @property

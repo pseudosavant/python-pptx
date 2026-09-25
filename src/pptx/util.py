@@ -106,11 +106,11 @@ class Pt(Length):
 
 class BulletStyle:
     """Convenience value class for styling unnumbered bullets.
-    
+
     ``BulletStyle.NO_BULLET`` indicates that bullets are explicitly disabled
     a paragraph. ``BulletStyle.DEFAULT`` indicates that whether the paragraph
     is rendered as a bullet is defined in the slide master or layout.
-    
+
     The methods ``BulletStyle.custom`` and ``BulletStyle.numbered`` can be
     used to create ``BulletStyle``s that control what kind of bullet is used
     for the paragraph.
@@ -119,7 +119,12 @@ class BulletStyle:
     NO_BULLET: BulletStyle = None
     DEFAULT: BulletStyle = None
 
-    def __init__(self, style: BulletStyleType, value: str | MSO_NUMBERED_BULLET_STYLE | None = None, start_at: int | None = None):
+    def __init__(
+        self,
+        style: BulletStyleType,
+        value: str | MSO_NUMBERED_BULLET_STYLE | None = None,
+        start_at: int | None = None,
+    ):
         if start_at is not None:
             if isinstance(start_at, bool) or not isinstance(start_at, int):
                 raise TypeError("start_at must be an integer or None")
@@ -143,7 +148,7 @@ class BulletStyle:
     @property
     def value(self) -> str | MSO_NUMBERED_BULLET_STYLE | None:
         return self._value
-    
+
     @property
     def style(self) -> BulletStyleType:
         return self._style
@@ -156,11 +161,12 @@ class BulletStyle:
     @classmethod
     def numbered(cls, style: MSO_NUMBERED_BULLET_STYLE, start_at: int | None = None):
         """Defines a bullet that is numbered.
-        
+
         The style of the enumeration is controlled by the ``style`` and
         is a ``MSO_NUMBERED_BULLET_STYLE``.
         """
         return BulletStyle(BulletStyleType.NUMBERED, style, start_at)
+
 
 BulletStyle.NO_BULLET = BulletStyle(BulletStyleType.NO_BULLET)
 BulletStyle.DEFAULT = BulletStyle(BulletStyleType.DEFAULT)

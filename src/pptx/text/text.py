@@ -7,7 +7,11 @@ from typing import TYPE_CHECKING, Iterator, cast
 from pptx.dml.fill import FillFormat
 from pptx.enum.dml import MSO_FILL
 from pptx.enum.lang import MSO_LANGUAGE_ID
-from pptx.enum.text import MSO_AUTO_SIZE, MSO_NUMBERED_BULLET_STYLE, MSO_UNDERLINE, MSO_VERTICAL_ANCHOR
+from pptx.enum.text import (
+    MSO_AUTO_SIZE,
+    MSO_UNDERLINE,
+    MSO_VERTICAL_ANCHOR,
+)
 from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.simpletypes import ST_TextWrappingType
 from pptx.shapes import Subshape
@@ -617,7 +621,7 @@ class _Paragraph(Subshape):
         ``BulletStyle.NO_BULLET`` indicates that bullets are explicitly disabled
         a paragraph. ``BulletStyle.DEFAULT`` indicates that whether the paragraph
         is rendered as a bullet is defined in the slide master or layout.
-        
+
         The methods ``BulletStyle.custom`` and ``BulletStyle.numbered`` can be
         used to create ``BulletStyle``s that control what kind of bullet is used
         for the paragraph.
@@ -626,7 +630,7 @@ class _Paragraph(Subshape):
         if pPr is None:
             return BulletStyle.DEFAULT
         return pPr.bullet
-    
+
     @bullet.setter
     def bullet(self, value: BulletStyle):
         pPr = self._p.get_or_add_pPr()

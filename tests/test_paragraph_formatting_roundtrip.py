@@ -3,7 +3,9 @@ from io import BytesIO
 import pytest
 
 from pptx import Presentation
-from pptx.util import Inches
+from pptx.enum.text import MSO_NUMBERED_BULLET_STYLE
+from pptx.oxml.xmlchemy import OxmlElement
+from pptx.util import BulletStyle, Inches, Pt
 
 
 def roundtrip(prs):
@@ -11,11 +13,6 @@ def roundtrip(prs):
     prs.save(stream)
     stream.seek(0)
     return Presentation(stream)
-
-
-from pptx.enum.text import MSO_NUMBERED_BULLET_STYLE
-from pptx.util import BulletStyle, Pt
-from pptx.oxml.xmlchemy import OxmlElement
 
 
 def test_list_formatting_roundtrip_and_reset():
@@ -44,7 +41,8 @@ def test_list_formatting_roundtrip_and_reset():
     p.bullet = BulletStyle.NO_BULLET
     p.left_indent = None
     p.first_line_indent = None
-    assert p.left_indent is None and p.first_line_indent is None
+    assert p.left_indent is None
+    assert p.first_line_indent is None
 
 
 @pytest.mark.parametrize("value", [0, 32768, True, 1.5])

@@ -98,6 +98,7 @@ API Documentation
    api/text
    api/action
    api/dml
+   api/theme
    api/image
    api/exc
    api/util

@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING, Callable, cast
 from pptx.enum.lang import MSO_LANGUAGE_ID
 from pptx.enum.text import (
     MSO_AUTO_SIZE,
-    MSO_TEXT_STRIKE_TYPE,
-
     MSO_NUMBERED_BULLET_STYLE,
+    MSO_TEXT_STRIKE_TYPE,
     MSO_TEXT_UNDERLINE_TYPE,
     MSO_VERTICAL_ANCHOR,
     PP_PARAGRAPH_ALIGNMENT,
@@ -35,11 +34,11 @@ from pptx.oxml.simpletypes import (
 )
 from pptx.oxml.xmlchemy import (
     BaseOxmlElement,
-    OxmlElement,
     Choice,
     OneAndOnlyOne,
     OneOrMore,
     OptionalAttribute,
+    OxmlElement,
     RequiredAttribute,
     ZeroOrMore,
     ZeroOrOne,
@@ -186,22 +185,16 @@ class CT_TextBody(BaseOxmlElement):
 
     @classmethod
     def _a_txBody_tmpl(cls):
-        return "<a:txBody %s>\n" "  <a:bodyPr/>\n" "  <a:p/>\n" "</a:txBody>\n" % (nsdecls("a"))
+        return "<a:txBody %s>\n  <a:bodyPr/>\n  <a:p/>\n</a:txBody>\n" % (nsdecls("a"))
 
     @classmethod
     def _p_txBody_tmpl(cls):
-        return (
-            "<p:txBody %s>\n" "  <a:bodyPr/>\n" "  <a:p/>\n" "</p:txBody>\n" % (nsdecls("p", "a"))
-        )
+        return "<p:txBody %s>\n  <a:bodyPr/>\n  <a:p/>\n</p:txBody>\n" % (nsdecls("p", "a"))
 
     @classmethod
     def _txBody_tmpl(cls):
-        return (
-            "<p:txBody %s>\n"
-            "  <a:bodyPr/>\n"
-            "  <a:lstStyle/>\n"
-            "  <a:p/>\n"
-            "</p:txBody>\n" % (nsdecls("a", "p"))
+        return "<p:txBody %s>\n  <a:bodyPr/>\n  <a:lstStyle/>\n  <a:p/>\n</p:txBody>\n" % (
+            nsdecls("a", "p")
         )
 
 
@@ -340,8 +333,10 @@ class CT_TextCharacterProperties(BaseOxmlElement):
     def theme_font(self):
         names = [self.find(qn("a:" + script)) for script in ("latin", "ea", "cs")]
         for kind, prefix in (("major", "+mj-"), ("minor", "+mn-")):
-            if all(node is not None and node.get("typeface") == prefix + suffix
-                   for node, suffix in zip(names, ("lt", "ea", "cs"))):
+            if all(
+                node is not None and node.get("typeface") == prefix + suffix
+                for node, suffix in zip(names, ("lt", "ea", "cs"))
+            ):
                 return kind
         return None
 
@@ -358,7 +353,9 @@ class CT_TextCharacterProperties(BaseOxmlElement):
         for script, suffix in (("latin", "lt"), ("ea", "ea"), ("cs", "cs")):
             node = OxmlElement("a:" + script)
             node.set("typeface", prefix + suffix)
-            self.insert_element_before(node, "a:sym", "a:hlinkClick", "a:hlinkMouseOver", "a:rtl", "a:extLst")
+            self.insert_element_before(
+                node, "a:sym", "a:hlinkClick", "a:hlinkMouseOver", "a:rtl", "a:extLst"
+            )
 
     def _new_gradFill(self):
         return CT_GradientFillProperties.new_gradFill()
@@ -441,9 +438,7 @@ class CT_TextParagraph(BaseOxmlElement):
     )
     r = ZeroOrMore("a:r", successors=("a:endParaRPr",))
     br = ZeroOrMore("a:br", successors=("a:endParaRPr",))
-    endParaRPr: CT_TextCharacterProperties | None = ZeroOrOne(
-        "a:endParaRPr", successors=()
-    )  # pyright: ignore[reportAssignmentType]
+    endParaRPr: CT_TextCharacterProperties | None = ZeroOrOne("a:endParaRPr", successors=())  # pyright: ignore[reportAssignmentType]
 
     def add_br(self) -> CT_TextLineBreak:
         """Return a newly appended `a:br` element."""
@@ -556,9 +551,7 @@ class CT_TextParagraphProperties(BaseOxmlElement):
     lvl: int = OptionalAttribute(  # pyright: ignore[reportAssignmentType]
         "lvl", ST_TextIndentLevelType, default=0
     )
-    algn: PP_PARAGRAPH_ALIGNMENT | None = OptionalAttribute(
-        "algn", PP_PARAGRAPH_ALIGNMENT
-    )  # pyright: ignore[reportAssignmentType]
+    algn: PP_PARAGRAPH_ALIGNMENT | None = OptionalAttribute("algn", PP_PARAGRAPH_ALIGNMENT)  # pyright: ignore[reportAssignmentType]
     del _tag_seq
 
     @property
@@ -596,7 +589,10 @@ class CT_TextParagraphProperties(BaseOxmlElement):
         if buChar is not None:
             return BulletStyle.custom(buChar.char)
         elif buAutoNum is not None:
-            return BulletStyle.numbered(buAutoNum.val, int(buAutoNum.get("startAt")) if buAutoNum.get("startAt") is not None else None)
+            return BulletStyle.numbered(
+                buAutoNum.val,
+                int(buAutoNum.get("startAt")) if buAutoNum.get("startAt") is not None else None,
+            )
         elif buNone is not None:
             return BulletStyle.NO_BULLET
         else:
@@ -613,7 +609,15 @@ class CT_TextParagraphProperties(BaseOxmlElement):
                 raise ValueError("custom bullet must be a nonempty string")
         tags = ("a:buNone", "a:buChar", "a:buAutoNum", "a:buBlip")
         if value == BulletStyle.DEFAULT:
-            tags += ("a:buClr", "a:buClrTx", "a:buFont", "a:buFontTx", "a:buSzPct", "a:buSzPts", "a:buSzTx")
+            tags += (
+                "a:buClr",
+                "a:buClrTx",
+                "a:buFont",
+                "a:buFontTx",
+                "a:buSzPct",
+                "a:buSzPts",
+                "a:buSzTx",
+            )
         for child in list(self):
             if child.tag in {qn(tag) for tag in tags}:
                 self.remove(child)
@@ -630,7 +634,6 @@ class CT_TextParagraphProperties(BaseOxmlElement):
             buAutoNum.val = cast(MSO_NUMBERED_BULLET_STYLE, value.value)
             if value.start_at is not None:
                 buAutoNum.set("startAt", str(value.start_at))
-
 
     @property
     def space_after(self) -> Length | None:
@@ -720,8 +723,9 @@ class CT_TextNoBullet(BaseOxmlElement):
     """
     <a:buNone> element, specifying that a paragraph should not be bulleted.
     """
+
     pass
- 
+
 
 class CT_TextCharBullet(BaseOxmlElement):
     """
@@ -731,7 +735,7 @@ class CT_TextCharBullet(BaseOxmlElement):
     char: str = RequiredAttribute(  # pyright: ignore[reportAssignmentType]
         "char", XsdString
     )
- 
+
 
 class CT_TextAutoNumberBullet(BaseOxmlElement):
     """
