@@ -56,6 +56,15 @@ class _BaseSlide(PartElementProxy):
         """
         return _Background(self._element.cSld)
 
+    def set_background_picture(self, image_file) -> None:
+        """Use an image path or file-like object as a stretched slide background.
+
+        Available on slides, masters, and layouts. The image is embedded through
+        the owning part and shared with other uses of identical image bytes.
+        """
+        _, relationship_id = self.part.get_or_add_image_part(image_file)
+        self.background.fill._set_picture(relationship_id)
+
     @property
     def name(self) -> str:
         """String representing the internal name of this slide.

@@ -5,8 +5,10 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
-from pptx.dml.color import ColorFormat
-from pptx.enum.dml import MSO_FILL
+import math
+
+from pptx.dml.color import ColorFormat, RGBColor
+from pptx.enum.dml import MSO_FILL, MSO_THEME_COLOR
 from pptx.oxml.dml.fill import (
     CT_BlipFillProperties,
     CT_GradientFillProperties,
@@ -15,7 +17,7 @@ from pptx.oxml.dml.fill import (
     CT_PatternFillProperties,
     CT_SolidColorFillProperties,
 )
-from pptx.oxml.xmlchemy import BaseOxmlElement
+from pptx.oxml.xmlchemy import BaseOxmlElement, OxmlElement
 from pptx.shared import ElementProxy
 from pptx.util import lazyproperty
 
@@ -69,6 +71,75 @@ class FillFormat(object):
         this fill.
         """
         return self._fill.fore_color
+
+    def set_gradient(self, stops, *, angle=0.0, radial=False, center=(0.5, 0.5)):
+        """Replace the fill with an explicit linear or circular radial gradient.
+
+        Stops are (position, color) pairs with ascending positions from 0 to 1.
+        Colors are RGBColor or MSO_THEME_COLOR values. At least two are required.
+        Angle is in counter-clockwise degrees. For radial gradients, center is
+        an (x, y) pair of fractions measured from the upper-left corner.
+        Invalid arguments leave the existing fill unchanged.
+        """
+        values = list(stops)
+        if len(values) < 2:
+            raise ValueError("a gradient requires at least two stops")
+        if not isinstance(radial, bool):
+            raise TypeError("radial must be bool")
+        if not math.isfinite(angle):
+            raise ValueError("gradient angle must be finite")
+        if len(center) != 2 or any(not math.isfinite(v) or not 0 <= v <= 1 for v in center):
+            raise ValueError("center must contain two fractions between 0 and 1")
+        gradient = OxmlElement("a:gradFill")
+        gradient.set("rotWithShape", "1")
+        stop_list = OxmlElement("a:gsLst")
+        previous = -1.0
+        for position, color in values:
+            if not math.isfinite(position) or not previous <= position <= 1 or position < 0:
+                raise ValueError("gradient positions must be ascending fractions from 0 to 1")
+            previous = position
+            stop = OxmlElement("a:gs")
+            stop.pos = position
+            if isinstance(color, RGBColor):
+                color_element = OxmlElement("a:srgbClr")
+                color_element.set("val", str(color))
+            elif isinstance(color, MSO_THEME_COLOR):
+                color_element = OxmlElement("a:schemeClr")
+                color_element.set("val", MSO_THEME_COLOR.to_xml(color))
+            else:
+                raise TypeError("gradient colors must be RGBColor or MSO_THEME_COLOR")
+            stop.append(color_element)
+            stop_list.append(stop)
+        gradient.append(stop_list)
+        if radial:
+            path = OxmlElement("a:path")
+            path.set("path", "circle")
+            rect = OxmlElement("a:fillToRect")
+            x, y = center
+            for name, value in zip(("l", "t", "r", "b"), (x, y, 1-x, 1-y)):
+                rect.set(name, str(round(value * 100000)))
+            path.append(rect)
+            gradient.append(path)
+        else:
+            linear = OxmlElement("a:lin")
+            linear.set("ang", str(round(((360.0 - angle) % 360.0) * 60000) % 21600000))
+            linear.set("scaled", "0")
+            gradient.append(linear)
+        old = self._xPr.get_or_change_to_gradFill()
+        old.getparent().replace(old, gradient)
+        self._fill = _GradFill(gradient)
+
+    def _set_picture(self, relationship_id):
+        """Set a stretched picture fill using a relationship owned by the containing part."""
+        fill = self._xPr.get_or_change_to_blipFill()
+        fill[:] = []
+        blip = OxmlElement("a:blip")
+        blip.rEmbed = relationship_id
+        fill.append(blip)
+        stretch = OxmlElement("a:stretch")
+        stretch.append(OxmlElement("a:fillRect"))
+        fill.append(stretch)
+        self._fill = _BlipFill(fill)
 
     def gradient(self):
         """Sets the fill type to gradient.
