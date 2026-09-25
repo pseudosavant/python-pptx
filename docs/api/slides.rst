@@ -108,3 +108,11 @@ This class is not intended to be constructed directly.
    :members:
    :exclude-members: clone_master_placeholders
    :inherited-members:
+
+Slide collection and master graphics
+-----------------------------------
+
+Slides.clear() removes all slides and retains masters and layouts for reuse as
+a template. Shared parts referenced from retained parts are preserved.
+Slide.show_master_shapes and SlideLayout.show_master_shapes accept True, False,
+or None. None removes the explicit setting and uses the file format default.

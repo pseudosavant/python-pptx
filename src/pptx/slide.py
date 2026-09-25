@@ -179,6 +179,21 @@ class Slide(_BaseSlide):
     part: SlidePart  # pyright: ignore[reportIncompatibleMethodOverride]
 
     @property
+    def show_master_shapes(self) -> bool | None:
+        """Whether master graphics are shown. None uses the file format default (True)."""
+        value = self._element.get("showMasterSp")
+        return None if value is None else value in ("1", "true")
+
+    @show_master_shapes.setter
+    def show_master_shapes(self, value: bool | None):
+        if value is not None and not isinstance(value, bool):
+            raise TypeError("show_master_shapes must be bool or None")
+        if value is None:
+            self._element.attrib.pop("showMasterSp", None)
+        else:
+            self._element.set("showMasterSp", "1" if value else "0")
+
+    @property
     def follow_master_background(self):
         """|True| if this slide inherits the slide master background.
 
@@ -265,6 +280,16 @@ class Slides(ParentedElementProxy):
         """Support len() built-in function, e.g. `len(slides) == 4`."""
         return len(self._sldIdLst)
 
+    def clear(self) -> None:
+        """Remove all slides while retaining masters, layouts, and presentation settings.
+
+        Slide parts and their notes/media become unreachable unless another retained
+        part references them. Such shared relationships are preserved.
+        """
+        for slide_id in list(self._sldIdLst):
+            self._sldIdLst.remove(slide_id)
+            self.part.drop_rel(slide_id.rId)
+
     def add_slide(self, slide_layout: SlideLayout) -> Slide:
         """Return a newly added slide that inherits layout from `slide_layout`."""
         rId, slide = self.part.add_slide(slide_layout)
@@ -300,6 +325,21 @@ class SlideLayout(_BaseSlide):
     """
 
     part: SlideLayoutPart  # pyright: ignore[reportIncompatibleMethodOverride]
+
+    @property
+    def show_master_shapes(self) -> bool | None:
+        """Whether master graphics are shown. None uses the file format default (True)."""
+        value = self._element.get("showMasterSp")
+        return None if value is None else value in ("1", "true")
+
+    @show_master_shapes.setter
+    def show_master_shapes(self, value: bool | None):
+        if value is not None and not isinstance(value, bool):
+            raise TypeError("show_master_shapes must be bool or None")
+        if value is None:
+            self._element.attrib.pop("showMasterSp", None)
+        else:
+            self._element.set("showMasterSp", "1" if value else "0")
 
     def iter_cloneable_placeholders(self) -> Iterator[LayoutPlaceholder]:
         """Generate layout-placeholders on this slide-layout that should be cloned to a new slide.
