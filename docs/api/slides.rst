@@ -108,3 +108,10 @@ This class is not intended to be constructed directly.
    :members:
    :exclude-members: clone_master_placeholders
    :inherited-members:
+
+Picture backgrounds
+-------------------
+
+Slides, layouts, and masters expose set_background_picture(image_file). The
+argument is a path or file-like object. The image is embedded and stretched
+to fill the background. Existing background fill proxies reflect the change.
