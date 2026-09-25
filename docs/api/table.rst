@@ -52,3 +52,10 @@ using the :attr:`_Row.cells` collection.
    :members:
    :member-order: bysource
    :undoc-members:
+
+Table style references
+----------------------
+
+Table.style_id reads or assigns a table style GUID. Assignment normalizes the
+GUID to uppercase with braces. None removes the reference and uses the default
+style. This property references a style. It does not create a style definition.
