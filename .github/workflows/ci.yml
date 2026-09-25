@@ -1,36 +1,54 @@
-name: ci
+name: CI
 
 on:
-  pull_request:
-    branches: [ master ]
   push:
-    branches:
-      - master
-      - develop
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-
-  build:
-    runs-on: ubuntu-latest
+  test:
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        os: [ubuntu-latest, windows-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
-      - name: Install test dependencies
+      - name: Install package and tests
+        run: python -m pip install . pytest pyparsing behave
+      - name: Unit and round-trip tests
+        run: python -m pytest -q
+      - name: Acceptance tests
+        run: python -m behave --stop --format progress
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - run: python -m pip install build twine
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - name: Smoke-test installed wheel
+        shell: bash
         run: |
-          pip install .
-          pip install -r requirements-test.txt
-      - name: Test with pytest
-        run: pytest --cov=pptx --cov-report term-missing tests
-      - name: Acceptance tests with behave
-        run: behave --stop
+          python -m venv /tmp/pptx-wheel
+          /tmp/pptx-wheel/bin/pip install dist/*.whl
+          cd /tmp
+          /tmp/pptx-wheel/bin/python "$GITHUB_WORKSPACE/tests/fork_wheel_smoke.py"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: python-distributions
+          path: dist/

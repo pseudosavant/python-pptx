@@ -1,3 +1,19 @@
+ps-python-pptx
+==============
+
+This is the pseudosavant fork of python-pptx, published as ps-python-pptx.
+It retains the pptx import package and the upstream MIT license and attribution.
+
+Install with pip install ps-python-pptx. Use a fresh environment when switching
+from python-pptx because both distributions provide the same import package.
+
+Version 1.1.0 adds public APIs for alternative text and titles, shape stacking,
+table styles, baseline shifts, strikethrough, paragraph bullets and indents,
+theme colors and fonts, slide clearing, and explicit gradient/picture backgrounds.
+See FORK.md for feature branches, upstream proposals, and release conventions.
+
+Upstream project documentation follows.
+
 *python-pptx* is a Python library for creating, reading, and updating PowerPoint (.pptx)
 files.
 
