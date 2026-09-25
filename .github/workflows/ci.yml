@@ -47,7 +47,7 @@ jobs:
           python -m venv /tmp/pptx-wheel
           /tmp/pptx-wheel/bin/pip install dist/*.whl
           cd /tmp
-          /tmp/pptx-wheel/bin/python "$GITHUB_WORKSPACE/tests/fork_wheel_smoke.py"
+          /tmp/pptx-wheel/bin/python -I "$GITHUB_WORKSPACE/tests/fork_wheel_smoke.py"
       - uses: actions/upload-artifact@v4
         with:
           name: python-distributions
