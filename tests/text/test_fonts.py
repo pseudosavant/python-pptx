@@ -118,10 +118,10 @@ class DescribeFontFiles(object):
 
     @pytest.fixture
     def osx_dirs_fixture(self, request):
-        import os
+        import posixpath
 
         os_ = var_mock(request, "pptx.text.fonts.os")
-        os_.path = os.path
+        os_.path = posixpath
         os_.environ = {"HOME": "/Users/fbar"}
         return [
             "/Library/Fonts",

@@ -15,7 +15,7 @@ def snippet_bytes(snippet_file_name: str):
     """Return bytes read from snippet file having `snippet_file_name`."""
     snippet_file_path = os.path.join(test_file_dir, "snippets", "%s.txt" % snippet_file_name)
     with open(snippet_file_path, "rb") as f:
-        return f.read().strip()
+        return f.read().replace(b"\r\n", b"\n").strip()
 
 
 def snippet_seq(name: str, offset: int = 0, count: int = sys.maxsize):
@@ -26,7 +26,7 @@ def snippet_seq(name: str, offset: int = 0, count: int = sys.maxsize):
     """
     path = os.path.join(test_file_dir, "snippets", "%s.txt" % name)
     with open(path, "rb") as f:
-        text = f.read().decode("utf-8")
+        text = f.read().decode("utf-8").replace("\r\n", "\n")
     snippets = text.split("\n\n")
     start, end = offset, offset + count
     return tuple(snippets[start:end])
@@ -40,7 +40,7 @@ def snippet_text(snippet_file_name: str):
     snippet_file_path = os.path.join(test_file_dir, "snippets", "%s.txt" % snippet_file_name)
     with open(snippet_file_path, "rb") as f:
         snippet_bytes = f.read()
-    return snippet_bytes.decode("utf-8")
+    return snippet_bytes.decode("utf-8").replace("\r\n", "\n")
 
 
 def testfile(name: str):
