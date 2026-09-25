@@ -215,20 +215,42 @@ class BaseShape(object):
         self._element.cx = value
 
     @property
-    def alt_text(self):
-        """
-        Read/write. Alternate text string for this shape.
-        """
-        return self._element._nvXxPr.cNvPr.attrib.get("descr")
+    def alt_text(self) -> str | None:
+        """Alternative-text description. None means absent, while an empty string is explicit."""
+        return self._element._nvXxPr.cNvPr.get("descr")
 
     @alt_text.setter
-    def alt_text(self, value):
-        self._element._nvXxPr.cNvPr.attrib["descr"] = value
+    def alt_text(self, value: str | None):
+        if value is not None and not isinstance(value, str):
+            raise TypeError("alternative text must be a string or None")
+        properties = self._element._nvXxPr.cNvPr
+        if value is None:
+            properties.attrib.pop("descr", None)
+        else:
+            properties.set("descr", value)
 
     @alt_text.deleter
     def alt_text(self):
-        del self._element._nvXxPr.cNvPr.attrib["descr"]
+        self.alt_text = None
 
+    @property
+    def alt_text_title(self) -> str | None:
+        """Alternative-text title. None means absent, while an empty string is explicit."""
+        return self._element._nvXxPr.cNvPr.get("title")
+
+    @alt_text_title.setter
+    def alt_text_title(self, value: str | None):
+        if value is not None and not isinstance(value, str):
+            raise TypeError("alternative text must be a string or None")
+        properties = self._element._nvXxPr.cNvPr
+        if value is None:
+            properties.attrib.pop("title", None)
+        else:
+            properties.set("title", value)
+
+    @alt_text_title.deleter
+    def alt_text_title(self):
+        self.alt_text_title = None
 
 class _PlaceholderFormat(ElementProxy):
     """Provides properties specific to placeholders, such as the placeholder type.

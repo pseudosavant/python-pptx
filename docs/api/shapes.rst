@@ -152,3 +152,10 @@ Note that:
    :exclude-members:
        has_chart, has_table, is_placeholder, placeholder_format
    :inherited-members:
+
+Alternative text metadata
+-------------------------
+
+Shape.alt_text stores the accessibility description. Shape.alt_text_title stores
+the optional title. Both accept a string or None. None removes the attribute.
+An empty string is preserved. Neither property changes the shape name.
