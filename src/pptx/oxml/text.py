@@ -8,6 +8,7 @@ from typing import TYPE_CHECKING, Callable, cast
 from pptx.enum.lang import MSO_LANGUAGE_ID
 from pptx.enum.text import (
     MSO_AUTO_SIZE,
+    MSO_TEXT_STRIKE_TYPE,
     MSO_TEXT_UNDERLINE_TYPE,
     MSO_VERTICAL_ANCHOR,
     PP_PARAGRAPH_ALIGNMENT,
@@ -18,6 +19,7 @@ from pptx.oxml.dml.fill import CT_GradientFillProperties
 from pptx.oxml.ns import nsdecls
 from pptx.oxml.simpletypes import (
     ST_Coordinate32,
+    ST_Percentage,
     ST_TextFontScalePercentOrPercentString,
     ST_TextFontSize,
     ST_TextIndentLevelType,
@@ -313,6 +315,9 @@ class CT_TextCharacterProperties(BaseOxmlElement):
     hlinkClick: CT_Hyperlink | None = ZeroOrOne(  # pyright: ignore[reportAssignmentType]
         "a:hlinkClick", successors=("a:hlinkMouseOver", "a:rtl", "a:extLst")
     )
+
+    baseline = OptionalAttribute("baseline", ST_Percentage)
+    strike = OptionalAttribute("strike", MSO_TEXT_STRIKE_TYPE)
 
     lang: MSO_LANGUAGE_ID | None = OptionalAttribute(  # pyright: ignore[reportAssignmentType]
         "lang", MSO_LANGUAGE_ID

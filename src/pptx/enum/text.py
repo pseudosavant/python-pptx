@@ -228,3 +228,11 @@ class PP_PARAGRAPH_ALIGNMENT(BaseXmlEnum):
 
 
 PP_ALIGN = PP_PARAGRAPH_ALIGNMENT
+
+
+class MSO_TEXT_STRIKE_TYPE(BaseXmlEnum):
+    """Strikethrough styles for Font.strike."""
+
+    NONE = (0, "noStrike", "Explicitly disable strikethrough.")
+    SINGLE = (1, "sngStrike", "Single strikethrough.")
+    DOUBLE = (2, "dblStrike", "Double strikethrough.")
