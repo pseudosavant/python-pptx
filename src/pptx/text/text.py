@@ -548,6 +548,35 @@ class _Paragraph(Subshape):
         pPr.line_spacing = value
 
     @property
+    def left_indent(self):
+        """Left paragraph margin as a Length, or None to inherit."""
+        value = self._pPr.marL
+        return None if value is None else Emu(value)
+
+    @left_indent.setter
+    def left_indent(self, value):
+        if value is not None and not 0 <= value <= 51206400:
+            raise ValueError("left_indent must be between 0 and 51206400 EMU")
+        self._pPr.marL = value
+
+    @property
+    def first_line_indent(self):
+        """First-line offset as a Length. Negative values create a hanging indent."""
+        value = self._pPr.indent
+        return None if value is None else Emu(value)
+
+    @first_line_indent.setter
+    def first_line_indent(self, value):
+        if value is not None and not -51206400 <= value <= 51206400:
+            raise ValueError("first_line_indent must be within +/-51206400 EMU")
+        self._pPr.indent = value
+
+    @property
+    def end_font(self) -> Font:
+        """Character formatting of the paragraph mark, including an empty paragraph."""
+        return Font(self._p.get_or_add_endParaRPr())
+
+    @property
     def bullet(self) -> BulletStyle:
         """The type of bullet, if any, defined for this paragraph.
 

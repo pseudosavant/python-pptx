@@ -17,7 +17,7 @@ from pptx.enum.text import (
 from pptx.exc import InvalidXmlError
 from pptx.oxml import parse_xml
 from pptx.oxml.dml.fill import CT_GradientFillProperties
-from pptx.oxml.ns import nsdecls
+from pptx.oxml.ns import nsdecls, qn
 from pptx.oxml.simpletypes import (
     ST_Coordinate32,
     ST_TextFontScalePercentOrPercentString,
@@ -519,6 +519,9 @@ class CT_TextParagraphProperties(BaseOxmlElement):
     buChar: CT_TextCharBullet | None = ZeroOrOne(  # pyright: ignore[reportAssignmentType]
         "a:buChar", successors=_tag_seq[13:]
     )
+    marL = OptionalAttribute("marL", ST_Coordinate32)
+    indent = OptionalAttribute("indent", ST_Coordinate32)
+
     lvl: int = OptionalAttribute(  # pyright: ignore[reportAssignmentType]
         "lvl", ST_TextIndentLevelType, default=0
     )
@@ -562,7 +565,7 @@ class CT_TextParagraphProperties(BaseOxmlElement):
         if buChar is not None:
             return BulletStyle.custom(buChar.char)
         elif buAutoNum is not None:
-            return BulletStyle.numbered(buAutoNum.val)
+            return BulletStyle.numbered(buAutoNum.val, int(buAutoNum.get("startAt")) if buAutoNum.get("startAt") is not None else None)
         elif buNone is not None:
             return BulletStyle.NO_BULLET
         else:
@@ -570,9 +573,19 @@ class CT_TextParagraphProperties(BaseOxmlElement):
 
     @bullet.setter
     def bullet(self, value: BulletStyle):
-        self._remove_buNone()
-        self._remove_buChar()
-        self._remove_buAutoNum()
+        if not isinstance(value, BulletStyle):
+            raise TypeError("bullet must be a BulletStyle")
+        if value.style == BulletStyleType.NUMBERED:
+            MSO_NUMBERED_BULLET_STYLE.to_xml(value.value)
+        elif value.style == BulletStyleType.CUSTOM:
+            if not isinstance(value.value, str) or not value.value:
+                raise ValueError("custom bullet must be a nonempty string")
+        tags = ("a:buNone", "a:buChar", "a:buAutoNum", "a:buBlip")
+        if value == BulletStyle.DEFAULT:
+            tags += ("a:buClr", "a:buClrTx", "a:buFont", "a:buFontTx", "a:buSzPct", "a:buSzPts", "a:buSzTx")
+        for child in list(self):
+            if child.tag in {qn(tag) for tag in tags}:
+                self.remove(child)
 
         if value == BulletStyle.DEFAULT:
             return
@@ -584,6 +597,8 @@ class CT_TextParagraphProperties(BaseOxmlElement):
         elif value.style == BulletStyleType.NUMBERED:
             buAutoNum = self._add_buAutoNum()
             buAutoNum.val = cast(MSO_NUMBERED_BULLET_STYLE, value.value)
+            if value.start_at is not None:
+                buAutoNum.set("startAt", str(value.start_at))
 
 
     @property

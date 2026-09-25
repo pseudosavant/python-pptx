@@ -119,15 +119,26 @@ class BulletStyle:
     NO_BULLET: BulletStyle = None
     DEFAULT: BulletStyle = None
 
-    def __init__(self, style: BulletStyleType, value: str | MSO_NUMBERED_BULLET_STYLE | None = None):
+    def __init__(self, style: BulletStyleType, value: str | MSO_NUMBERED_BULLET_STYLE | None = None, start_at: int | None = None):
+        if start_at is not None:
+            if isinstance(start_at, bool) or not isinstance(start_at, int):
+                raise TypeError("start_at must be an integer or None")
+            if style != BulletStyleType.NUMBERED or not 1 <= start_at <= 32767:
+                raise ValueError("start_at requires a numbered bullet and must be 1..32767")
         self._style = style
         self._value = value
+        self._start_at = start_at
 
     def __eq__(self, other: object):
         if isinstance(other, BulletStyle) and self._style == other._style:
-            return self._value == other._value
+            return self._value == other._value and self._start_at == other._start_at
         else:
             return False
+
+    @property
+    def start_at(self) -> int | None:
+        """Explicit first number, or None for automatic continuation."""
+        return self._start_at
 
     @property
     def value(self) -> str | MSO_NUMBERED_BULLET_STYLE | None:
@@ -143,13 +154,13 @@ class BulletStyle:
         return BulletStyle(BulletStyleType.CUSTOM, bullet_string)
 
     @classmethod
-    def numbered(cls, style: MSO_NUMBERED_BULLET_STYLE):
+    def numbered(cls, style: MSO_NUMBERED_BULLET_STYLE, start_at: int | None = None):
         """Defines a bullet that is numbered.
         
         The style of the enumeration is controlled by the ``style`` and
         is a ``MSO_NUMBERED_BULLET_STYLE``.
         """
-        return BulletStyle(BulletStyleType.NUMBERED, style)
+        return BulletStyle(BulletStyleType.NUMBERED, style, start_at)
 
 BulletStyle.NO_BULLET = BulletStyle(BulletStyleType.NO_BULLET)
 BulletStyle.DEFAULT = BulletStyle(BulletStyleType.DEFAULT)
