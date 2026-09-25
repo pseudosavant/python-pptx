@@ -5,6 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Iterator, cast
 
 from pptx.dml.fill import FillFormat
+from pptx.opc.constants import RELATIONSHIP_TYPE as RT
+from pptx.oxml.ns import qn
+from pptx.text.text import Font
 from pptx.enum.shapes import PP_PLACEHOLDER
 from pptx.shapes.shapetree import (
     LayoutPlaceholders,
@@ -459,6 +462,27 @@ class SlideMaster(_BaseMaster):
     """
 
     _element: CT_SlideMaster  # pyright: ignore[reportIncompatibleVariableOverride]
+
+    @property
+    def theme(self):
+        """Editable theme shared by masters referencing the same theme part."""
+        return self.part.part_related_by(RT.THEME).theme
+
+    def text_style_font(self, kind: str, level: int = 0):
+        """Explicit font defaults for title, body, or other text at level 0..8.
+
+        Return None if that style has no explicit font defaults. This does not
+        resolve inheritance and does not create missing style elements.
+        """
+        if kind not in ("title", "body", "other"):
+            raise ValueError("kind must be title, body, or other")
+        if isinstance(level, bool) or not isinstance(level, int) or not 0 <= level <= 8:
+            raise ValueError("level must be an integer from 0 to 8")
+        path = "/".join(qn(tag) for tag in (
+            "p:txStyles", "p:" + kind + "Style", "a:lvl" + str(level + 1) + "pPr", "a:defRPr"
+        ))
+        element = self._element.find(path)
+        return None if element is None else Font(element)
 
     @lazyproperty
     def slide_layouts(self) -> SlideLayouts:

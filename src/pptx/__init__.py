@@ -13,6 +13,7 @@ from pptx.parts.chart import ChartPart
 from pptx.parts.coreprops import CorePropertiesPart
 from pptx.parts.image import ImagePart
 from pptx.parts.media import MediaPart
+from pptx.parts.theme import ThemePart
 from pptx.parts.presentation import PresentationPart
 from pptx.parts.slide import (
     NotesMasterPart,
@@ -44,6 +45,7 @@ content_type_to_part_class_map: dict[str, type[Part]] = {
     CT.PML_SLIDE_LAYOUT: SlideLayoutPart,
     CT.PML_SLIDE_MASTER: SlideMasterPart,
     CT.DML_CHART: ChartPart,
+    CT.OFC_THEME: ThemePart,
     CT.BMP: ImagePart,
     CT.GIF: ImagePart,
     CT.JPEG: ImagePart,
