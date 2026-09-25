@@ -15,7 +15,7 @@ from pptx.enum.text import (
 from pptx.exc import InvalidXmlError
 from pptx.oxml import parse_xml
 from pptx.oxml.dml.fill import CT_GradientFillProperties
-from pptx.oxml.ns import nsdecls
+from pptx.oxml.ns import nsdecls, qn
 from pptx.oxml.simpletypes import (
     ST_Coordinate32,
     ST_TextFontScalePercentOrPercentString,
@@ -29,6 +29,7 @@ from pptx.oxml.simpletypes import (
 )
 from pptx.oxml.xmlchemy import (
     BaseOxmlElement,
+    OxmlElement,
     Choice,
     OneAndOnlyOne,
     OneOrMore,
@@ -325,6 +326,30 @@ class CT_TextCharacterProperties(BaseOxmlElement):
     u: MSO_TEXT_UNDERLINE_TYPE | None = OptionalAttribute(  # pyright: ignore[reportAssignmentType]
         "u", MSO_TEXT_UNDERLINE_TYPE
     )
+
+    @property
+    def theme_font(self):
+        names = [self.find(qn("a:" + script)) for script in ("latin", "ea", "cs")]
+        for kind, prefix in (("major", "+mj-"), ("minor", "+mn-")):
+            if all(node is not None and node.get("typeface") == prefix + suffix
+                   for node, suffix in zip(names, ("lt", "ea", "cs"))):
+                return kind
+        return None
+
+    @theme_font.setter
+    def theme_font(self, value):
+        if value not in (None, "major", "minor"):
+            raise ValueError("theme_font must be major, minor, or None")
+        for script in ("latin", "ea", "cs"):
+            for node in list(self.findall(qn("a:" + script))):
+                self.remove(node)
+        if value is None:
+            return
+        prefix = "+mj-" if value == "major" else "+mn-"
+        for script, suffix in (("latin", "lt"), ("ea", "ea"), ("cs", "cs")):
+            node = OxmlElement("a:" + script)
+            node.set("typeface", prefix + suffix)
+            self.insert_element_before(node, "a:sym", "a:hlinkClick", "a:hlinkMouseOver", "a:rtl", "a:extLst")
 
     def _new_gradFill(self):
         return CT_GradientFillProperties.new_gradFill()

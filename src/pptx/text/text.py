@@ -289,6 +289,19 @@ class Font(object):
         self._element = self._rPr = rPr
 
     @property
+    def theme_font(self):
+        """Major/minor theme font selection for Latin, East Asian, and complex scripts.
+
+        None indicates no complete theme selection. Assigning None clears these
+        three explicit typeface settings and restores inheritance.
+        """
+        return self._rPr.theme_font
+
+    @theme_font.setter
+    def theme_font(self, value):
+        self._rPr.theme_font = value
+
+    @property
     def bold(self) -> bool | None:
         """Get or set boolean bold value of |Font|, e.g. `paragraph.font.bold = True`.
 
