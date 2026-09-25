@@ -7,13 +7,13 @@ from typing import TYPE_CHECKING, Iterator, cast
 from pptx.dml.fill import FillFormat
 from pptx.enum.dml import MSO_FILL
 from pptx.enum.lang import MSO_LANGUAGE_ID
-from pptx.enum.text import MSO_AUTO_SIZE, MSO_UNDERLINE, MSO_VERTICAL_ANCHOR
+from pptx.enum.text import MSO_AUTO_SIZE, MSO_NUMBERED_BULLET_STYLE, MSO_UNDERLINE, MSO_VERTICAL_ANCHOR
 from pptx.opc.constants import RELATIONSHIP_TYPE as RT
 from pptx.oxml.simpletypes import ST_TextWrappingType
 from pptx.shapes import Subshape
 from pptx.text.fonts import FontFiles
 from pptx.text.layout import TextFitter
-from pptx.util import Centipoints, Emu, Length, Pt, lazyproperty
+from pptx.util import BulletStyle, Centipoints, Emu, Length, Pt, lazyproperty
 
 if TYPE_CHECKING:
     from pptx.dml.color import ColorFormat
@@ -567,6 +567,57 @@ class _Paragraph(Subshape):
     def line_spacing(self, value: int | float | Length | None):
         pPr = self._p.get_or_add_pPr()
         pPr.line_spacing = value
+
+    @property
+    def left_indent(self):
+        """Left paragraph margin as a Length, or None to inherit."""
+        value = self._pPr.marL
+        return None if value is None else Emu(value)
+
+    @left_indent.setter
+    def left_indent(self, value):
+        if value is not None and not 0 <= value <= 51206400:
+            raise ValueError("left_indent must be between 0 and 51206400 EMU")
+        self._pPr.marL = value
+
+    @property
+    def first_line_indent(self):
+        """First-line offset as a Length. Negative values create a hanging indent."""
+        value = self._pPr.indent
+        return None if value is None else Emu(value)
+
+    @first_line_indent.setter
+    def first_line_indent(self, value):
+        if value is not None and not -51206400 <= value <= 51206400:
+            raise ValueError("first_line_indent must be within +/-51206400 EMU")
+        self._pPr.indent = value
+
+    @property
+    def end_font(self) -> Font:
+        """Character formatting of the paragraph mark, including an empty paragraph."""
+        return Font(self._p.get_or_add_endParaRPr())
+
+    @property
+    def bullet(self) -> BulletStyle:
+        """The type of bullet, if any, defined for this paragraph.
+
+        ``BulletStyle.NO_BULLET`` indicates that bullets are explicitly disabled
+        a paragraph. ``BulletStyle.DEFAULT`` indicates that whether the paragraph
+        is rendered as a bullet is defined in the slide master or layout.
+        
+        The methods ``BulletStyle.custom`` and ``BulletStyle.numbered`` can be
+        used to create ``BulletStyle``s that control what kind of bullet is used
+        for the paragraph.
+        """
+        pPr = self._p.pPr
+        if pPr is None:
+            return BulletStyle.DEFAULT
+        return pPr.bullet
+    
+    @bullet.setter
+    def bullet(self, value: BulletStyle):
+        pPr = self._p.get_or_add_pPr()
+        pPr.bullet = value
 
     @property
     def runs(self) -> tuple[_Run, ...]:
