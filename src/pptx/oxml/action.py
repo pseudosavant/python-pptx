@@ -14,6 +14,8 @@ class CT_Hyperlink(BaseOxmlElement):
         "action", XsdString
     )
 
+    tooltip: str | None = OptionalAttribute("tooltip", XsdString)  # pyright: ignore[reportAssignmentType]
+
     @property
     def action_fields(self) -> dict[str, str]:
         """Query portion of the `ppaction://` URL as dict.

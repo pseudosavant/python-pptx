@@ -488,6 +488,29 @@ class _Hyperlink(Subshape):
         if url:
             self._add_hlinkClick(url)
 
+    @property
+    def screen_tip(self) -> str | None:
+        """Text shown by PowerPoint when pointing at this hyperlink.
+
+        Assign the address or action before setting a ScreenTip. Assigning None
+        or an empty string removes the tip without changing the link. Setting
+        a new address uses the existing address setter behavior and clears the
+        old tip. Reading this property does not create a hyperlink element.
+        """
+        hlink = self._hlinkClick
+        return hlink.tooltip if hlink is not None else None
+
+    @screen_tip.setter
+    def screen_tip(self, value: str | None):
+        if value is not None and not isinstance(value, str):
+            raise TypeError("screen_tip must be a string or None")
+        hlink = self._hlinkClick
+        if hlink is None:
+            if value:
+                raise ValueError("Set a hyperlink address or action before its ScreenTip")
+            return
+        hlink.tooltip = value or None
+
     def _add_hlinkClick(self, url: str):
         rId = self.part.relate_to(url, RT.HYPERLINK, is_external=True)
         self._rPr.add_hlinkClick(rId)
