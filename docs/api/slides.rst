@@ -123,3 +123,28 @@ Picture backgrounds
 Slides, layouts, and masters expose set_background_picture(image_file). The
 argument is a path or file-like object. The image is embedded and stretched
 to fill the background. Existing background fill proxies reflect the change.
+
+Read-only background inspection
+------------------------------
+
+``slide.background_info`` returns an immutable snapshot of the effective fill.
+The same property is available on layouts and masters. It follows background
+inheritance and theme style references without changing the presentation.
+Unlike ``background.fill``, this getter never interrupts inheritance.
+
+The snapshot's ``kind`` is ``solid``, ``gradient``, ``picture``, ``none``, or
+``unknown``. It includes resolved RGB colors, gradient stops and geometry, or
+embedded picture bytes and crop fractions as applicable. ``reason`` describes
+an unsupported fill. Pattern fills, translucent colors, scaled linear
+gradients, and unsupported picture effects are reported as unknown.
+
+This inspects background fills only. It does not composite slide or master
+shapes, resolve theme overrides, or reproduce PowerPoint's text rendering.
+
+::
+
+    info = slide.background_info
+    if info.kind == "solid":
+        print(info.color)
+    elif info.kind == "unknown":
+        print(info.reason)

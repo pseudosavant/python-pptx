@@ -56,6 +56,13 @@ class _BaseSlide(PartElementProxy):
         """
         return _Background(self._element.cSld)
 
+    @property
+    def background_info(self):
+        """Read-only effective background fill snapshot, including inherited styles."""
+        from pptx.background import background_info
+
+        return background_info(self)
+
     def set_background_picture(self, image_file) -> None:
         """Use an image path or file-like object as a stretched slide background.
 
