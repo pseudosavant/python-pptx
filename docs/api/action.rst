@@ -24,3 +24,11 @@ presentation or running a macro are also possible.
    :members:
    :inherited-members:
    :undoc-members:
+
+ScreenTips
+----------
+
+Text-run hyperlinks and shape click or hover hyperlinks expose ``screen_tip``.
+Set the address first, then assign the ScreenTip text. Assign ``None`` or an
+empty string to clear just the tip. Assigning a new address clears the old tip.
+ScreenTip access does not require direct XML manipulation.
